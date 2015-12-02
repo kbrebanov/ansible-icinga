@@ -1,0 +1,7 @@
+---
+# vars file for icinga (Ubuntu specific)
+
+icinga_packages:
+  - icinga2={{ icinga_version }}*
+  - nagios-plugins
+icinga_service_name: icinga2

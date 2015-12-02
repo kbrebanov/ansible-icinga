@@ -1,0 +1,19 @@
+---
+# tasks file for icinga (Ubuntu specific)
+
+- name: Add Icinga GPG key
+  apt_key: >
+    url=http://packages.icinga.org/icinga.key
+    state=present
+  tags: icinga
+
+- name: Add Icinga repository
+  apt_repository: >
+    repo='deb http://packages.icinga.org/ubuntu icinga-trusty main'
+    state=present
+  tags: icinga
+
+- name: Install Icinga packages
+  apt: name={{ item }} state=present update_cache=yes
+  with_items: icinga_packages
+  tags: icinga

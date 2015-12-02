@@ -1,2 +1,10 @@
 ---
 # handlers file for icinga
+
+- name: restart icinga
+  service: name={{ icinga_service_name }} state=restarted
+  tags: icinga
+
+- name: reload icinga
+  service: name={{ icinga_service_name }} state=reloaded
+  tags: icinga
