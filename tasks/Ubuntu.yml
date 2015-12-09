@@ -17,3 +17,8 @@
   apt: name={{ item }} state=present update_cache=yes
   with_items: icinga_packages
   tags: icinga
+
+- name: Install Icinga IDO modules for PostgreSQL
+  apt: name=icinga2-ido-pgsql state=present update_cache=yes
+  when: icinga_web_enable and icinga_database_server == "postgresql"
+  tags: icinga

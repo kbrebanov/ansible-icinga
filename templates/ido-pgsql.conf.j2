@@ -1,0 +1,15 @@
+/* {{ ansible_managed }} */
+
+/**
+ * The db_ido_pgsql library implements IDO functionality
+ * for PostgreSQL.
+ */
+
+library "db_ido_pgsql"
+
+object IdoPgsqlConnection "ido-pgsql" {
+  user = "{{ icinga_database_user }}",
+  password = "{{ icinga_database_password }}",
+  host = "localhost",
+  database = "{{ icinga_database_name }}"
+}

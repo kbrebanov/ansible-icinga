@@ -1,2 +1,5 @@
 ---
 # vars file for icinga
+
+icinga_database_user: icinga
+icinga_database_name: icinga

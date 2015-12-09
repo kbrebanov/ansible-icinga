@@ -27,6 +27,72 @@
   notify: restart icinga
   tags: icinga
 
+- name: Create Icinga PostgreSQL user
+  become: yes
+  become_user: postgres
+  become_method: sudo
+  postgresql_user: >
+    name={{ icinga_database_user }}
+    password={{ icinga_database_password }}
+    state=present
+  when: icinga_web_enable and icinga_database_server == "postgresql"
+  tags: icinga
+
+- name: Create Icinga PostgreSQL database
+  become: yes
+  become_user: postgres
+  become_method: sudo
+  postgresql_db: >
+    name={{ icinga_database_name }}
+    owner={{ icinga_database_user }}
+    encoding='UTF-8'
+    state=present
+  when: icinga_web_enable and icinga_database_server == "postgresql"
+  tags: icinga
+
+- name: Check if Icinga IDO PostgreSQL schema is already imported
+  become: yes
+  become_user: postgres
+  become_method: sudo
+  environment:
+    PGPASSWORD: "{{ icinga_database_password }}"
+  shell: "echo '\d' | psql -h 127.0.0.1 -U {{ icinga_database_user }} -d {{ icinga_database_name }}"
+  register: icinga_pgsql_db
+  changed_when: false
+  when: icinga_web_enable and icinga_database_server == "postgresql"
+  tags: icinga
+
+- name: Import Icinga IDO PostgreSQL schema
+  become: yes
+  become_user: postgres
+  become_method: sudo
+  environment:
+    PGPASSWORD: "{{ icinga_database_password }}"
+  shell: "psql -h 127.0.0.1 -U {{ icinga_database_user }} -d {{ icinga_database_name }} < /usr/share/icinga2-ido-pgsql/schema/pgsql.sql"
+  when: '"No relations found" in icinga_pgsql_db.stdout'
+  tags: icinga
+
+- name: Create Icinga IDO PostgreSQL configuration file
+  template: >
+    src=ido-pgsql.conf.j2
+    dest=/etc/icinga2/features-available/ido-pgsql.conf
+    owner=root
+    group=nagios
+    mode=0640
+  notify: restart icinga
+  when: icinga_web_enable and icinga_database_server == "postgresql"
+  tags: icinga
+
+- name: Enable Icinga IDO PostgreSQL feature
+  file: >
+    src=../features-available/ido-pgsql.conf
+    dest=/etc/icinga2/features-enabled/ido-pgsql.conf
+    owner=root
+    group=root
+    state=link
+  when: icinga_web_enable and icinga_database_server == "postgresql"
+  tags: icinga
+
 - name: Ensure Icinga service is started and enabled on boot
   service: name={{ icinga_service_name }} state=started enabled=yes
   tags: icinga

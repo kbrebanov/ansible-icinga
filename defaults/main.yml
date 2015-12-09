@@ -2,3 +2,7 @@
 # defaults file for icinga
 
 icinga_version: 2.4.1
+icinga_web_enable: false
+icinga_database_server: postgresql
+icinga_database_password: icinga
+icinga_web_server: nginx
